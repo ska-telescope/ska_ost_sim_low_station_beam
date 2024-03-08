@@ -1,0 +1,75 @@
+[tool.poetry]
+name = "ska-ost-sim-low-station-beam"
+version = "0.0.0"
+description = "SKA Low station beam response simulator"
+#authors = ["SKAO Science Operations <sciops@skao.int>"]
+maintainers = ["Sarrvesh Sridhar", "Maciej Serylak"]
+license = "BSD"
+readme = "README.md"
+repository = "https://gitlab.com/ska-telescope/ost/ska_ost_sim_low_station_beam"
+keywords = ["SKA Low station beam response simulator"]
+packages = [
+    { include = "ska_ost_sim_low_station_beam", from = "src" },
+]
+include = [
+    { path = 'tests'}
+]
+
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+[tool.poetry.dependencies]
+astroplan = "~0.9"
+astropy = "<6"
+importlib-metadata = "*"
+matplotlib = "*"
+python = ">=3.10,<3.13"
+pyfftw = "*"
+scipy = "*"
+
+[tool.poetry.dev-dependencies]
+isort = "*"
+black = "*"
+flake8 = "*"
+pylint = "*"
+pylint_junit = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-pylint = "*"
+python-dotenv = "*"
+coverage = "*"
+setuptools = "*"
+ipython = "*"
+notebook = "*"
+
+[tool.pytest.ini_options]
+testpaths = "tests"
+junit_family = "legacy"
+log_cli = true
+log_cli_level = "INFO"
+
+[tool.coverage.run]
+branch = true
+source = ["ska_ost_array_config"]
+
+[tool.black]
+line-length = 88
+preview = true
+target-version = ['py310']
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
