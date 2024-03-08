@@ -2,7 +2,7 @@
 name = "ska-ost-sim-low-station-beam"
 version = "0.0.0"
 description = "SKA Low station beam response simulator"
-#authors = ["SKAO Science Operations <sciops@skao.int>"]
+authors = ["SKAO"]
 maintainers = ["Sarrvesh Sridhar", "Maciej Serylak"]
 license = "BSD"
 readme = "README.md"
@@ -30,10 +30,7 @@ classifiers = [
 astroplan = "~0.9"
 astropy = "<6"
 importlib-metadata = "*"
-matplotlib = "*"
 python = ">=3.10,<3.13"
-pyfftw = "*"
-scipy = "*"
 
 [tool.poetry.dev-dependencies]
 isort = "*"

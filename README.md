@@ -25,3 +25,12 @@ pip install ska-ost-array-config --extra-index-url https://artefact.skao.int/rep
 
 
 This package has been tested against `python-3.10`, `python-3.11`, and `python-3.12`.
+
+Contributing
+------------
+
+If you wish to add more features to this package, feel free to issue a merge request.
+We use `black` and `isort` to format our code. Make sure to check the formatting with
+```bash
+make python-lint
+```
