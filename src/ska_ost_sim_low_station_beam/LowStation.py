@@ -13,13 +13,9 @@ from ska_ost_array_config.array_config import (
     get_low_station_coordinates,
     get_low_station_rotation,
 )
-from ska_sdp_datamodels.configuration.config_coordinate_support import (
-    ecef_to_enu,
-)
+from ska_sdp_datamodels.configuration.config_coordinate_support import ecef_to_enu
 
-VALID_STATION_NAMES = LowSubArray(
-    subarray_type="AA1"
-).array_config.names.data.tolist()
+VALID_STATION_NAMES = LowSubArray(subarray_type="AA1").array_config.names.data.tolist()
 
 
 class LowStation:
@@ -138,16 +134,12 @@ class LowStation:
                 [
                     0,
                     station_radius
-                    * numpy.cos(
-                        numpy.deg2rad(-1 * (self.station_rot_angle - 90))
-                    ),
+                    * numpy.cos(numpy.deg2rad(-1 * (self.station_rot_angle - 90))),
                 ],
                 [
                     0,
                     station_radius
-                    * numpy.sin(
-                        numpy.deg2rad(-1 * (self.station_rot_angle - 90))
-                    ),
+                    * numpy.sin(numpy.deg2rad(-1 * (self.station_rot_angle - 90))),
                 ],
                 color=principle_direction_color,
                 alpha=principle_direction_alpha,

@@ -20,11 +20,11 @@ poetry install
 
 Alternately, you can also install using traditional methods with
 ```bash
-pip install ska-ost-array-config --extra-index-url https://artefact.skao.int/repository/pypi-internal/simple
+pip install ska_ost_sim_low_station_beam --extra-index-url https://artefact.skao.int/repository/pypi-internal/simple
 ```
 
 
-This package has been tested against `python-3.10`, `python-3.11`, and `python-3.12`.
+This package has been tested against `python-3.9`, `python-3.10`, and `python-3.11`.
 
 Contributing
 ------------
