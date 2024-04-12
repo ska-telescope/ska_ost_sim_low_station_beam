@@ -5,6 +5,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy
 import pandas
+from astropy import units
+from astropy.coordinates import EarthLocation
 from astropy.utils.exceptions import AstropyDeprecationWarning
 from matplotlib import patches
 from matplotlib.ticker import MaxNLocator
@@ -52,7 +54,9 @@ class LowStation:
         )
         self.coordinates = pandas.read_csv(coord_file_name, skiprows=1)
         # Drop unwanted columns
-        self.coordinates.drop(["Easting", "Northing", "HAE", "Lat", "Lon", "HAE.1"])
+        self.coordinates = self.coordinates.drop(
+            ["Easting", "Northing", "HAE", "Lat", "Lon", "HAE.1"], axis=1
+        )
         # Get the ECEF XYZ coordinates of all LFAA
         self.lfaa_names = self.coordinates["#SB-Antenna"].tolist()
         self.lfaa_xyz = numpy.stack(
@@ -71,22 +75,92 @@ class LowStation:
         )
         warnings.resetwarnings()
 
+    def get_lfaa_names(self):
+        """Returns as a list the names of the LFAA included in this LowStation"""
+        return self.lfaa_names
+
+    def get_lfaa_coordinates(self, lfaa_names):
+        """
+        Returns the coordinates of the specified LFAAs
+
+        Parameters
+        ----------
+        lfaa_names: string
+            Comma-separated list of LFAA names
+
+        Returns
+        -------
+        List of astropy.coordinates.EarthLocation objects with the same length
+        as lfaa_names.
+        """
+        coordinates = []
+        for lfaa_name in lfaa_names.split(","):
+            mask = self.coordinates["#SB-Antenna"].str.fullmatch(lfaa_name)
+            if not mask.any():
+                msg = f"{lfaa_name} is not a valid LFAA in station {self.station_name}"
+                raise RuntimeError(msg)
+            coordinates.append(
+                EarthLocation.from_geocentric(
+                    self.coordinates["ECEF-X"][mask],
+                    self.coordinates["ECEF-Y"][mask],
+                    self.coordinates["ECEF-Z"][mask],
+                    unit=units.m,
+                )
+            )
+        return coordinates
+
     def plot_station_layout(
         self,
         axes=None,
         lfaa_marker_size=10,
         lfaa_marker_color="blue",
-        plot_station_boundary=True,
+        plot_station_boundary=False,
         station_boundary_edge_color="black",
         station_boundary_linewidth=0.5,
-        plot_principle_direction=True,
+        plot_principle_direction=False,
         principle_direction_color="#00bf00",
         principle_direction_alpha=0.5,
-        plot_cardinal_direction=True,
+        plot_cardinal_direction=False,
         cardinal_direction_alpha=0.5,
         cardinal_direction_color="magenta",
     ):
-        """Plot the layout of this station"""
+        """
+        Plot the layout of this station
+
+        Parameters
+        ----------
+        axes:
+        lfaa_marker_size: float
+            Size of the symbol used to plot the antenna. Default: 10.
+        lfaa_marker_color: string
+            Colour of the LFAA marker. Can be a valid matplotlib-compatible colour
+            name or hex string. Default: 'blue'
+        plot_station_boundary: bool
+            If True, plot the station boundary. Default: False
+        station_boundary_edge_color: string
+            Colour of the station boundary. Can be a valid matplotlib-compatible colour
+            name or hex string. Default: 'black'
+        station_boundary_linewidth: float
+            Line width of the station boundary. Default: 0.5
+        plot_principle_direction: bool
+            If True, plot a line indicating the station principle direction.
+            Default: False
+        principle_direction_color: string
+            Colour of the station principle direction marker.
+            Can be a valid matplotlib-compatible colour name or hex string.
+            Default: "#00bf00"
+        principle_direction_alpha: float
+            Default: 0.5
+        plot_cardinal_direction: bool
+            If True, plot a line indicating the station principle direction.
+            Default: False
+        cardinal_direction_color: string
+            Colour of the cardinal direction marker.
+            Can be a valid matplotlib-compatible colour name or hex string.
+            Default: "magenta"
+        cardinal_direction_alpha: float
+            Default: 0.5
+        """
         station_radius = 19.5
         plot_limit = 24.0
 
@@ -111,6 +185,8 @@ class LowStation:
             ls="",
         )
 
+        show_legend = False
+
         if plot_station_boundary:
             station_boundary = patches.Circle(
                 (0.0, 0.0),
@@ -122,6 +198,7 @@ class LowStation:
             axes.add_patch(station_boundary)
 
         if plot_cardinal_direction:
+            show_legend = True
             axes.plot(
                 0,
                 station_radius,
@@ -138,6 +215,7 @@ class LowStation:
             )
 
         if plot_principle_direction:
+            show_legend = True
             axes.plot(
                 station_radius
                 * numpy.cos(numpy.deg2rad(-1 * (self.station_rot_angle - 90))),
@@ -176,7 +254,8 @@ class LowStation:
         axes.minorticks_on()
         axes.xaxis.set_major_locator(MaxNLocator(nbins=10))
         axes.yaxis.set_major_locator(MaxNLocator(nbins=10))
-        axes.legend(ncol=2)
+        if show_legend:
+            axes.legend(ncol=2)
 
         if return_vals:
             return fig, axes

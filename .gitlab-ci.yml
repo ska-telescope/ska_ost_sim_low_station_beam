@@ -13,9 +13,6 @@ cache:
   paths:
     - .cache/pip
 
-before_script:
-  - pip install sunpy
-
 stages:
   - lint
   - build
