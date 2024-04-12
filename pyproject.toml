@@ -48,7 +48,7 @@ python-dotenv = "*"
 coverage = "*"
 setuptools = "*"
 ipython = "*"
-notebook = ">7"
+jupyter = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

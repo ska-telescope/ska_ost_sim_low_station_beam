@@ -1,7 +1,17 @@
-image: $SKA_K8S_TOOLS_BUILD_DEPLOY
+default:
+  image: $SKA_K8S_TOOLS_BUILD_DEPLOY
+  tags:
+    - k8srunner
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+# Enable caching for python
+cache:
+  key: $CI_COMMIT_REF_SLUG
+  paths:
+    - .cache/pip
 
 stages:
   - lint
@@ -10,10 +20,20 @@ stages:
   - .post
   - scan
   - publish
-#  - pages # Enable when we have documentation
+#  - pages # Disabled because we don't have the standard SKAO-style documentation
 
 include:
     - project: 'ska-telescope/templates-repository'
       file: "gitlab-ci/includes/python.gitlab-ci.yml"
+    # .post step finalisers eg: badges
     - project: 'ska-telescope/templates-repository'
       file: "gitlab-ci/includes/finaliser.gitlab-ci.yml"
+    # OCI
+    - project: "ska-telescope/templates-repository"
+      file: "gitlab-ci/includes/oci-image.gitlab-ci.yml"
+    # K8s
+    # This is to make sure our tests are running inside the runner pod instead of the legacy way
+    # that k8s.gitlab-ci-yml file provides
+    - project: "ska-telescope/templates-repository"
+      file: "gitlab-ci/includes/k8s-test-runner.gitlab-ci.yml"
+
