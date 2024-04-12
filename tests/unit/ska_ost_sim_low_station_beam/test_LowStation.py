@@ -1,4 +1,5 @@
 import pytest
+import sunpy
 
 from ska_ost_sim_low_station_beam.LowStation import LowStation
 

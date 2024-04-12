@@ -21,8 +21,19 @@ VALID_STATION_NAMES = LowSubArray(subarray_type="AA1").array_config.names.data.t
 class LowStation:
     """LowStation class to keep track of full/substations"""
 
-    def __init__(self, station_name):
-        """Constructor for LowStation class"""
+    def __init__(self, station_name, lfaa_list=None):
+        """
+        Constructor for LowStation class
+
+        Parameters
+        ----------
+        station_name: string
+            Name of a valid SKA LOW station. The current version only supports stations
+            available in AA1 configuration.
+        lfaa_list: string
+            Valid LFAA names (comma-separated) or a selection string.
+            If unspecified, all LFAA antennas in the station will be used.
+        """
         # Assert that the specified station is supported
         if station_name not in VALID_STATION_NAMES:
             msg = (
@@ -39,17 +50,24 @@ class LowStation:
             Path(__file__).resolve().parent
             / f"lfaa_coords/{station_name}_coordinates.csv"
         )
-        self.coord_file = pandas.read_csv(coord_file_name, skiprows=1)
+        self.coordinates = pandas.read_csv(coord_file_name, skiprows=1)
+        # Drop unwanted columns
+        self.coordinates.drop(["Easting", "Northing", "HAE", "Lat", "Lon", "HAE.1"])
         # Get the ECEF XYZ coordinates of all LFAA
-        lfaa_names = self.coord_file["#SB-Antenna"].tolist()
-        lfaa_x = self.coord_file["ECEF-X"].to_numpy()
-        lfaa_y = self.coord_file["ECEF-Y"].to_numpy()
-        lfaa_z = self.coord_file["ECEF-Z"].to_numpy()
+        self.lfaa_names = self.coordinates["#SB-Antenna"].tolist()
+        self.lfaa_xyz = numpy.stack(
+            (
+                self.coordinates["ECEF-X"].to_numpy(),
+                self.coordinates["ECEF-Y"].to_numpy(),
+                self.coordinates["ECEF-Z"].to_numpy(),
+            ),
+            axis=1,
+        )
         # Convert ECEF coordinates to ENU
         warnings.filterwarnings("ignore", category=AstropyDeprecationWarning)
         self.lfaa_enu = ecef_to_enu(
             get_low_station_coordinates(station_name),
-            numpy.stack((lfaa_x, lfaa_y, lfaa_z), axis=1),
+            self.lfaa_xyz,
         )
         warnings.resetwarnings()
 
