@@ -45,7 +45,7 @@ class LowStation:
         if station_type not in VALID_STATION_TYPES:
             msg = f"Station type {station_type} is invalid. "
             msg += f"Valid station types are {', '.join(VALID_STATION_TYPES)}"
-            raise RuntimeError(msg)
+            raise ValueError(msg)
 
         if station_type == "substation":
             # Substation is being defined
@@ -70,7 +70,7 @@ class LowStation:
                         # The selection pattern did not resolve into valid LFAA names
                         msg = f"{pattern} is not a valid selection string. "
                         msg += "Check your inputs."
-                        raise RuntimeError(msg)
+                        raise ValueError(msg)
                     else:
                         requested_lfaa += matched_lfaa
             requested_lfaa = sorted(list(set(requested_lfaa)))
@@ -113,6 +113,78 @@ class LowStation:
         )
         warnings.resetwarnings()
 
+    def filter_lfaa_by_distance(self, distance, invert=False):
+        """
+        Generates a list of LFAA that lie within the specified distance from the
+        array_centre.
+
+        Parameters
+        ----------
+        distance: float or astropy.units.quantity.Quantity equivalent to astropy.units.m
+            Distance in metres (for float) from the center of the station within which
+            the filtered LFAA elements must lie.
+        invert: bool
+            If invert=True, LFAA elements outside the specified distance is returned.
+            Default: False
+
+        Returns
+        -------
+        Comma-separated list of LFAA elements
+        """
+        if isinstance(distance, units.quantity.Quantity):
+            if not distance.unit.is_equivalent(units.m):
+                raise ValueError(
+                    f"Input unit of distance is not equivalent to m: {distance}"
+                )
+            else:
+                distance = distance.to(units.m).value
+
+        distance_from_centre = numpy.sqrt(
+            self.lfaa_enu[:, 0] ** 2 + self.lfaa_enu[:, 1] ** 2
+        )
+
+        if invert:
+            return ",".join(
+                numpy.asarray(self.lfaa_names)[distance_from_centre > distance].tolist()
+            )
+        else:
+            return ",".join(
+                numpy.asarray(self.lfaa_names)[distance_from_centre < distance].tolist()
+            )
+
+    def get_neighbour_lfaa(self, ref_lfaa, distance):
+        """
+        Generates a list of LFAA that lie within the specified distance from ref_lfaa.
+
+        Parameters
+        ----------
+        ref_lfaa: string
+            Name of a valid LFAA element in this station
+        distance: float or astropy.units.quantity.Quantity equivalent to astropy.units.m
+            Distance in metres (for float) from the center of the station within which
+            the filtered LFAA elements must lie.
+        """
+        if isinstance(distance, units.quantity.Quantity):
+            if not distance.unit.is_equivalent(units.m):
+                raise ValueError(
+                    f"Input unit of distance is not equivalent to m: {distance}"
+                )
+            else:
+                distance = distance.to(units.m).value
+        try:
+            index = self.lfaa_names.index(ref_lfaa)
+        except ValueError:
+            msg = f"LFAA {ref_lfaa} is not present in this station"
+            raise ValueError(msg)
+        ref_coords = self.lfaa_enu[index]
+        distance_from_ref = numpy.sqrt(
+            (self.lfaa_enu[:, 0] - ref_coords[0]) ** 2
+            + (self.lfaa_enu[:, 1] - ref_coords[1]) ** 2
+        )
+        return ",".join(
+            numpy.asarray(self.lfaa_names)[distance_from_ref < distance].tolist()
+        )
+
     def get_lfaa_names(self):
         """Returns as a list the names of the LFAA included in this LowStation"""
         return self.lfaa_names
@@ -136,7 +208,7 @@ class LowStation:
             mask = self.coordinates["#SB-Antenna"].str.fullmatch(lfaa_name)
             if not mask.any():
                 msg = f"{lfaa_name} is not a valid LFAA in station {self.station_name}"
-                raise RuntimeError(msg)
+                raise ValueError(msg)
             coordinates.append(
                 EarthLocation.from_geocentric(
                     self.coordinates["ECEF-X"][mask],

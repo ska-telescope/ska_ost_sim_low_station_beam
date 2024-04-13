@@ -11,8 +11,8 @@ TOLERANCE = 1e-3
 
 
 def test_LowStation():
-    """Throw NotImplementedError if an invalid station name is specified"""
-    with pytest.raises(RuntimeError):
+    """Test LowStation class"""
+    with pytest.raises(ValueError):
         LowStation("B0")
 
 
@@ -27,11 +27,11 @@ def test_get_lfaa_coordinates():
 
 def test_get_lfaa_coordinates_fail():
     """
-    LowStation.get_lfaa_coordinates() must throw a RuntimeError if an invalid LFAA
+    LowStation.get_lfaa_coordinates() must throw a ValueError if an invalid LFAA
     is specified.
     """
-    # Throw RuntimeError if an invalid station name is specified
-    with pytest.raises(RuntimeError):
+    # Throw ValueError if an invalid station name is specified
+    with pytest.raises(ValueError):
         LowStation("S8-1").get_lfaa_coordinates("SB01-01,SB00-01")
 
 
@@ -62,11 +62,26 @@ def test_plot_station_layout(test_image_name):
 
 
 def test_LowStation_substation_fail():
-    """Test if LowStation throws a RuntimeError if an invalid LFAA name is specified"""
-    with pytest.raises(RuntimeError):
+    """Test if LowStation throws a ValueError if an invalid LFAA name is specified"""
+    with pytest.raises(ValueError):
         LowStation(
             station_type="substation",
             station_name="sub_s8_1",
             parent_station="S8-1",
             lfaa_list="SB01-01,SB01-02,SB01-00",
         )
+
+
+def test_LowStation_get_neighbour_lfaa():
+    """Test LowStation.get_neighbour_lfaa"""
+    # Invalid ref_lfaa should throw a ValueError
+    with pytest.raises(ValueError):
+        LowStation("S8-1").get_neighbour_lfaa("SB05-00", distance=10.0)
+
+    assert LowStation("S8-1").get_neighbour_lfaa("SB05-09", distance=1.0) == "SB05-09"
+
+
+def test_LowStation_filter_lfaa_by_distance():
+    """Test LowStation.filter_lfaa_by_distance"""
+    with pytest.raises(ValueError):
+        LowStation("S8-1").filter_lfaa_by_distance(distance=10.0 * units.second)

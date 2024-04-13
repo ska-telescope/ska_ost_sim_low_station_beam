@@ -1,4 +1,4 @@
-# ska_ost_sim_low_station_beam
+# SKA Low Station Beam Response Simulator
 
 A python package to simulate the station beam response of an SKA Low station.
 Station beam responses can be simulated for both full stations (with all 256 LFAA elements)
@@ -17,14 +17,14 @@ We use [poetry](https://python-poetry.org/docs/basic-usage/) to manage dependenc
 You can install `ska_ost_sim_low_station_beam` with
 
 ```bash
-git clone https://gitlab.com/ska-telescope/ost/ska_ost_sim_low_station_beam.git
-cd ska_ost_sim_low_station_beam
+git clone https://gitlab.com/ska-telescope/ost/ska-ost-sim-low-station-beam
+cd ska-ost-sim-low-station-beam
 poetry install
 ```
 
 Alternately, you can also install using traditional methods with
 ```bash
-pip install ska_ost_sim_low_station_beam --extra-index-url https://artefact.skao.int/repository/pypi-internal/simple
+pip install ska-ost-sim-low-station-beam --extra-index-url https://artefact.skao.int/repository/pypi-internal/simple
 ```
 
 
