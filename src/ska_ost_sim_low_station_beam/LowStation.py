@@ -1,3 +1,4 @@
+import fnmatch
 import warnings
 from pathlib import Path
 
@@ -17,19 +18,23 @@ from ska_ost_array_config.array_config import (
 )
 from ska_sdp_datamodels.configuration.config_coordinate_support import ecef_to_enu
 
-VALID_STATION_NAMES = LowSubArray(subarray_type="AA1").array_config.names.data.tolist()
+VALID_STATION_TYPES = LowSubArray(
+    subarray_type="AA1"
+).array_config.names.data.tolist() + ["substation"]
 
 
 class LowStation:
     """LowStation class to keep track of full/substations"""
 
-    def __init__(self, station_name, lfaa_list=None):
+    def __init__(
+        self, station_type, station_name=None, parent_station=None, lfaa_list=None
+    ):
         """
         Constructor for LowStation class
 
         Parameters
         ----------
-        station_name: string
+        station_type: string
             Name of a valid SKA LOW station. The current version only supports stations
             available in AA1 configuration.
         lfaa_list: string
@@ -37,22 +42,55 @@ class LowStation:
             If unspecified, all LFAA antennas in the station will be used.
         """
         # Assert that the specified station is supported
-        if station_name not in VALID_STATION_NAMES:
-            msg = (
-                f"Specified station {station_name} is either not supported in this "
-                f"version or is an invalid SKA Low station name."
-            )
+        if station_type not in VALID_STATION_TYPES:
+            msg = f"Station type {station_type} is invalid. "
+            msg += f"Valid station types are {', '.join(VALID_STATION_TYPES)}"
             raise RuntimeError(msg)
 
-        self.station_name = station_name
-        self.station_rot_angle = get_low_station_rotation(station_name)
+        if station_type == "substation":
+            # Substation is being defined
+            self.station_type = station_type
+            self.station_name = station_name
+            self.parent_station = parent_station
+            self.station_rot_angle = get_low_station_rotation(self.parent_station)
+            # Read in the coordinates file for this station
+            coord_file_name = (
+                Path(__file__).resolve().parent
+                / f"lfaa_coords/{self.parent_station}_coordinates.csv"
+            )
+            all_coordinates = pandas.read_csv(coord_file_name, skiprows=1)
+            all_lfaa = all_coordinates["#SB-Antenna"].tolist()
+            if lfaa_list is None:
+                requested_lfaa = all_lfaa
+            else:
+                requested_lfaa = []
+                for pattern in lfaa_list.split(","):
+                    matched_lfaa = fnmatch.filter(all_lfaa, pattern)
+                    if not matched_lfaa:
+                        # The selection pattern did not resolve into valid LFAA names
+                        msg = f"{pattern} is not a valid selection string. "
+                        msg += "Check your inputs."
+                        raise RuntimeError(msg)
+                    else:
+                        requested_lfaa += matched_lfaa
+            requested_lfaa = sorted(list(set(requested_lfaa)))
+            # Retain only those LFAAs requested in this substation
+            self.coordinates = all_coordinates[
+                all_coordinates["#SB-Antenna"].isin(requested_lfaa)
+            ]
+        else:
+            # Full station is being defined
+            self.station_type = station_type
+            self.station_name = station_type
+            self.parent_station = station_type
+            self.station_rot_angle = get_low_station_rotation(station_type)
+            # Read in the coordinates file for this station
+            coord_file_name = (
+                Path(__file__).resolve().parent
+                / f"lfaa_coords/{self.parent_station}_coordinates.csv"
+            )
+            self.coordinates = pandas.read_csv(coord_file_name, skiprows=1)
 
-        # Read in the coordinates file for this station
-        coord_file_name = (
-            Path(__file__).resolve().parent
-            / f"lfaa_coords/{station_name}_coordinates.csv"
-        )
-        self.coordinates = pandas.read_csv(coord_file_name, skiprows=1)
         # Drop unwanted columns
         self.coordinates = self.coordinates.drop(
             ["Easting", "Northing", "HAE", "Lat", "Lon", "HAE.1"], axis=1
@@ -70,7 +108,7 @@ class LowStation:
         # Convert ECEF coordinates to ENU
         warnings.filterwarnings("ignore", category=AstropyDeprecationWarning)
         self.lfaa_enu = ecef_to_enu(
-            get_low_station_coordinates(station_name),
+            get_low_station_coordinates(self.parent_station),
             self.lfaa_xyz,
         )
         warnings.resetwarnings()
@@ -117,6 +155,7 @@ class LowStation:
         plot_station_boundary=False,
         station_boundary_edge_color="black",
         station_boundary_linewidth=0.5,
+        station_boundary_alpha=0.5,
         plot_principle_direction=False,
         principle_direction_color="#00bf00",
         principle_direction_alpha=0.5,
@@ -142,6 +181,8 @@ class LowStation:
             name or hex string. Default: 'black'
         station_boundary_linewidth: float
             Line width of the station boundary. Default: 0.5
+        station_boundary_alpha: float
+            Default: 0.5
         plot_principle_direction: bool
             If True, plot a line indicating the station principle direction.
             Default: False
@@ -194,6 +235,7 @@ class LowStation:
                 edgecolor=station_boundary_edge_color,
                 facecolor="none",
                 linewidth=station_boundary_linewidth,
+                alpha=station_boundary_alpha,
             )
             axes.add_patch(station_boundary)
 

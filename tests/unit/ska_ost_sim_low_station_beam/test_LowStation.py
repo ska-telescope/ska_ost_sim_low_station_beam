@@ -59,3 +59,14 @@ def test_plot_station_layout(test_image_name):
         / "static/low_S8_1_station_layout_with_legend.png"
     )
     assert compare_images(test_image_name, reference_image, tol=TOLERANCE) is None
+
+
+def test_LowStation_substation_fail():
+    """Test if LowStation throws a RuntimeError if an invalid LFAA name is specified"""
+    with pytest.raises(RuntimeError):
+        LowStation(
+            station_type="substation",
+            station_name="sub_s8_1",
+            parent_station="S8-1",
+            lfaa_list="SB01-01,SB01-02,SB01-00",
+        )

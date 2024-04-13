@@ -4,7 +4,8 @@ A python package to simulate the station beam response of an SKA Low station.
 Station beam responses can be simulated for both full stations (with all 256 LFAA elements)
 or for substations (with a subset of the LFAA elements in a station).
 
-Please contact SKA if you have comments/questions.
+A detailed description of the various functionalities available in this package can be
+found in the `docs/examples.ipynb` notebook. 
 
 Installation
 ------------
@@ -30,7 +31,3 @@ Contributing
 ------------
 
 If you wish to add more features to this package, feel free to issue a merge request.
-We use `black` and `isort` to format our code. Make sure to check the formatting with
-```bash
-make python-lint
-```
