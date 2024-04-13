@@ -28,12 +28,4 @@ include:
     # .post step finalisers eg: badges
     - project: 'ska-telescope/templates-repository'
       file: "gitlab-ci/includes/finaliser.gitlab-ci.yml"
-    # OCI
-    - project: "ska-telescope/templates-repository"
-      file: "gitlab-ci/includes/oci-image.gitlab-ci.yml"
-    # K8s
-    # This is to make sure our tests are running inside the runner pod instead of the legacy way
-    # that k8s.gitlab-ci-yml file provides
-    - project: "ska-telescope/templates-repository"
-      file: "gitlab-ci/includes/k8s-test-runner.gitlab-ci.yml"
 
