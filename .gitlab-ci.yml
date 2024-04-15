@@ -22,7 +22,7 @@ stages:
   - publish
 #  - pages # Disabled because we don't have the standard SKAO-style documentation
 
-# Modify python-test to include oskar
+# Modify python-test template to include oskar
 python-test:
   stage: test
   script:

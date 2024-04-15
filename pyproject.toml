@@ -30,7 +30,7 @@ url = 'https://pypi.org/simple'
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
-ska_ost_array_config = {git="https://gitlab.com/ska-telescope/ost/ska-ost-array-config", rev="63316313"}
+ska_ost_array_config = {git="https://gitlab.com/ska-telescope/ost/ska-ost-array-config", rev="6331631316200272430706b6f995ccd7124cfb56"}
 astroplan = "*"
 astropy = "~5.1"
 importlib-metadata = "*"
