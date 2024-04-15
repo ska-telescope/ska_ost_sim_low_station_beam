@@ -5,13 +5,6 @@ default:
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-
-# Enable caching for python
-cache:
-  key: $CI_COMMIT_REF_SLUG
-  paths:
-    - .cache/pip
 
 stages:
   - lint

@@ -38,6 +38,7 @@ importlib-metadata = "*"
 [tool.poetry.dev-dependencies]
 isort = "*"
 black = "*"
+Click = "*"
 flake8 = "*"
 pylint = "*"
 pylint_junit = "*"
