@@ -29,6 +29,8 @@ python-test:
     - apt-get update;
       apt-get --yes install --no-install-recommends cmake wget libhdf5-dev git
     - pwd
+    - cd
+    - pwd
     - make python-test
 
 include:
