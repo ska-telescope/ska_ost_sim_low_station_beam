@@ -28,9 +28,16 @@ python-test:
   script:
     - apt-get update;
       apt-get --yes install --no-install-recommends cmake wget libhdf5-dev git
-    - pwd
-    - cd
-    - pwd
+    - git clone https://github.com/OxfordSKA/OSKAR.git;
+      cd OSKAR;
+      git checkout 2.9.4;
+      mkdir build;
+      cd build;
+      cmake ../ ;
+      make -j4;
+      make install
+    - pip3 install 'git+https://github.com/OxfordSKA/OSKAR.git@2.9.4#egg=oskarpy&subdirectory=python'
+    - cd /builds/ska-telescope/ost/ska-ost-sim-low-station-beam
     - make python-test
 
 include:
