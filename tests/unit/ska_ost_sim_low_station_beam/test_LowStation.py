@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import oskar
 import pytest
 from astropy import units
 from astropy.coordinates import EarthLocation

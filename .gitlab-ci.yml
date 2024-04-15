@@ -22,6 +22,16 @@ stages:
   - publish
 #  - pages # Disabled because we don't have the standard SKAO-style documentation
 
+# Modify python-test to include oskar
+python-test:
+  script:
+    - apt-get update
+    - apt-get --yes install --no-install-recommends cmake wget libhdf5-dev git
+    - git clone https://github.com/OxfordSKA/OSKAR.git && cd OSKAR && git checkout 2.9.4 && mkdir build && cd build && cmake ../ && make && make install
+    - pip3 install -U pip
+    - pip3 install 'git+https://github.com/OxfordSKA/OSKAR.git@2.9.4#egg=oskarpy&subdirectory=python'
+    - make python-test
+
 include:
     - project: 'ska-telescope/templates-repository'
       file: "gitlab-ci/includes/python.gitlab-ci.yml"
