@@ -23,7 +23,9 @@ stages:
 #  - pages # Disabled because we don't have the standard SKAO-style documentation
 
 # Modify python-test to include oskar
-python-test:
+modified-test:
+  stage: test
+  extends: python-test
   script:
     - apt-get update
     - apt-get --yes install --no-install-recommends cmake wget libhdf5-dev git
