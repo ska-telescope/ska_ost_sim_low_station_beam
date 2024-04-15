@@ -26,7 +26,8 @@ stages:
 python-test:
   stage: test
   script:
-    - apt-get update
+    - apt-get update;
+      apt-get --yes install --no-install-recommends cmake wget libhdf5-dev git
     - make python-test
 
 include:
