@@ -23,7 +23,7 @@ stages:
 #  - pages # Disabled because we don't have the standard SKAO-style documentation
 
 # Modify python-test to include oskar
-modified-test:
+python-test:
   stage: test
   script:
     - apt-get update
