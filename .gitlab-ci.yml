@@ -28,6 +28,15 @@ python-test:
   script:
     - apt-get update;
       apt-get --yes install --no-install-recommends cmake wget libhdf5-dev git
+    - git clone https://github.com/OxfordSKA/OSKAR.git;
+      cd OSKAR;
+      git checkout 2.9.4;
+      mkdir build;
+      cd build;
+      cmake ../ ;
+      make;
+      make install
+    - pip3 install 'git+https://github.com/OxfordSKA/OSKAR.git@2.9.4#egg=oskarpy&subdirectory=python'
     - make python-test
 
 include:
