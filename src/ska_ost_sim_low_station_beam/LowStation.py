@@ -56,9 +56,9 @@ class LowStation:
             # Read in the coordinates file for this station
             coord_file_name = (
                 Path(__file__).resolve().parent
-                / f"lfaa_coords/{self.parent_station}_coordinates.csv"
+                / f"lfaa_coords/{self.parent_station}_as_built_coordinates.csv"
             )
-            all_coordinates = pandas.read_csv(coord_file_name, skiprows=1)
+            all_coordinates = pandas.read_csv(coord_file_name, skiprows=6)
             all_lfaa = all_coordinates["#SB-Antenna"].tolist()
             if lfaa_list is None:
                 requested_lfaa = all_lfaa
@@ -87,16 +87,17 @@ class LowStation:
             # Read in the coordinates file for this station
             coord_file_name = (
                 Path(__file__).resolve().parent
-                / f"lfaa_coords/{self.parent_station}_coordinates.csv"
+                / f"lfaa_coords/{self.parent_station}_as_built_coordinates.csv"
             )
-            self.coordinates = pandas.read_csv(coord_file_name, skiprows=1)
+            self.coordinates = pandas.read_csv(coord_file_name, skiprows=6)
 
         # Drop unwanted columns
         self.coordinates = self.coordinates.drop(
-            ["Easting", "Northing", "HAE", "Lat", "Lon", "HAE.1"], axis=1
+            ["Easting", "Northing", "AHD", "Lat", "Lon", "HAE", "E", "N", "U"], axis=1
         )
         # Get the ECEF XYZ coordinates of all LFAA
         self.lfaa_names = self.coordinates["#SB-Antenna"].tolist()
+        self.eep_id = self.coordinates["EEP"].to_numpy()
         self.lfaa_xyz = numpy.stack(
             (
                 self.coordinates["ECEF-X"].to_numpy(),

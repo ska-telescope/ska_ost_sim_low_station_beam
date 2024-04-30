@@ -4,6 +4,7 @@ import pytest
 from astropy import units
 from astropy.coordinates import EarthLocation
 from matplotlib.testing.compare import compare_images
+from ska_ost_array_config.array_config import LowSubArray
 
 from ska_ost_sim_low_station_beam.LowStation import LowStation
 
@@ -16,10 +17,16 @@ def test_LowStation():
         LowStation("B0")
 
 
+def test_all_valid_AA1_stations():
+    """Check that all valid AA1 stations can be specified"""
+    for name in LowSubArray(subarray_type="AA1").array_config.names.data.tolist():
+        assert isinstance(LowStation(name), LowStation)
+
+
 def test_get_lfaa_coordinates():
     """Test LowStation.get_lfaa_coordinates()"""
     expected_answer = EarthLocation.from_geocentric(
-        -2561216.6924, 5085891.1196, -2864164.6997, unit=units.m
+        -2561216.8527, 5085891.0873, -2864164.4719, unit=units.m
     )
     test = LowStation("S8-1").get_lfaa_coordinates("SB01-01")
     assert expected_answer == test
